@@ -1,5 +1,9 @@
 # Clawtunes
 
+[![Build status](https://github.com/forketyfork/clawtunes/actions/workflows/build.yml/badge.svg)](https://github.com/forketyfork/clawtunes/actions/workflows/build.yml)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/language-Python-blue.svg)](https://python.org/)
+
 A command-line tool for controlling Apple Music on macOS.
 
 ## What it does
