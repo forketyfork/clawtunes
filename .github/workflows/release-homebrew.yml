@@ -1,0 +1,88 @@
+name: Update Homebrew Tap
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g., v0.1.0)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  update-tap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve release tag
+        id: release
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            tag="${{ inputs.tag }}"
+          else
+            tag="${{ github.event.release.tag_name }}"
+          fi
+          if [ -z "$tag" ]; then
+            echo "Release tag is required." >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Download tarball and compute checksum
+        id: tarball
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -L \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/tarball/${{ steps.release.outputs.tag }}" \
+            -o clawtunes.tar.gz
+          echo "sha256=$(shasum -a 256 clawtunes.tar.gz | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: forketyfork/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update formula
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          SHA256: ${{ steps.tarball.outputs.sha256 }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import os
+
+          formula_path = Path("homebrew-tap/Formula/clawtunes.rb")
+          content = formula_path.read_text(encoding="utf-8")
+          version = os.environ["VERSION"]
+          sha256 = os.environ["SHA256"]
+
+          content = re.sub(r'version \"[^\"]+\"', f'version \"{version}\"', content)
+          content = re.sub(r'sha256 \"[^\"]+\"', f'sha256 \"{sha256}\"', content)
+
+          formula_path.write_text(content, encoding="utf-8")
+          PY
+
+      - name: Commit and push
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          cd homebrew-tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add Formula/clawtunes.rb
+            git commit -m "chore: update clawtunes to ${VERSION}"
+            git push
+          else
+            echo "No changes to commit."
+          fi

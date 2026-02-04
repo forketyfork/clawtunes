@@ -1,0 +1,42 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Install Nix
+      uses: cachix/install-nix-action@v31
+
+    - name: Setup Nix Cache
+      uses: cachix/cachix-action@v16
+      with:
+        name: forketyfork
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      continue-on-error: true
+
+    - name: Check formatting with black
+      run: nix develop --command black --check src/clawtunes src/clawtunes_helpers tests
+
+    - name: Lint with ruff
+      run: nix develop --command ruff check src/clawtunes src/clawtunes_helpers tests
+
+    - name: Type check with mypy
+      run: nix develop --command mypy src/clawtunes src/clawtunes_helpers
+
+    - name: Run tests with pytest
+      run: nix develop --command pytest -v
+
+    - name: Build distributions
+      run: nix develop --command python -m build
