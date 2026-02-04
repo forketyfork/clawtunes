@@ -36,7 +36,7 @@ jobs:
         id: tarball
         run: |
           curl -L \
-            "https://github.com/${{ github.repository }}/archive/${{ steps.release.outputs.tag }}.tar.gz" \
+            "https://github.com/${{ github.repository }}/archive/refs/tags/${{ steps.release.outputs.tag }}.tar.gz" \
             -o clawtunes.tar.gz
           echo "sha256=$(shasum -a 256 clawtunes.tar.gz | awk '{print $1}')" >> "$GITHUB_OUTPUT"
 
@@ -63,8 +63,8 @@ jobs:
           sha256 = os.environ["SHA256"]
 
           content = re.sub(
-              r'url \"https://github.com/forketyfork/clawtunes/archive/v[^\"]+\\.tar\\.gz\"',
-              f'url \"https://github.com/forketyfork/clawtunes/archive/v{version}.tar.gz\"',
+              r'url \"https://github.com/forketyfork/clawtunes/archive/refs/tags/v[^\"]+\\.tar\\.gz\"',
+              f'url \"https://github.com/forketyfork/clawtunes/archive/refs/tags/v{version}.tar.gz\"',
               content,
           )
           content = re.sub(r'version \"[^\"]+\"', f'version \"{version}\"', content)
