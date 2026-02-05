@@ -106,3 +106,95 @@ def test_set_airplay_device_uses_args(monkeypatch):
     assert playback.set_airplay_device("HomePod", True) is None
     assert "on run argv" in captured["script"]
     assert captured["args"] == ["HomePod", "true"]
+
+
+def test_create_playlist_success(monkeypatch):
+    captured = {}
+
+    def fake_run_applescript(script, args=None):
+        captured["script"] = script
+        captured["args"] = args
+        return "ok", "", 0
+
+    monkeypatch.setattr(playback, "run_applescript", fake_run_applescript)
+
+    success, message = playback.create_playlist("My Favorites")
+    assert success is True
+    assert "Created playlist" in message
+    assert "on run argv" in captured["script"]
+    assert captured["args"] == ["My Favorites"]
+
+
+def test_create_playlist_already_exists(monkeypatch):
+    def fake_run_applescript(script, args=None):
+        return "exists", "", 0
+
+    monkeypatch.setattr(playback, "run_applescript", fake_run_applescript)
+
+    success, message = playback.create_playlist("Existing Playlist")
+    assert success is False
+    assert "already exists" in message
+
+
+def test_add_song_to_playlist_success(monkeypatch):
+    captured = {}
+
+    def fake_run_applescript(script, args=None):
+        captured["script"] = script
+        captured["args"] = args
+        return "ok", "", 0
+
+    monkeypatch.setattr(playback, "run_applescript", fake_run_applescript)
+
+    success, message = playback.add_song_to_playlist("My Playlist", "12345")
+    assert success is True
+    assert "on run argv" in captured["script"]
+    assert captured["args"] == ["My Playlist", "12345"]
+
+
+def test_add_song_to_playlist_not_found(monkeypatch):
+    def fake_run_applescript(script, args=None):
+        return "playlist_not_found", "", 0
+
+    monkeypatch.setattr(playback, "run_applescript", fake_run_applescript)
+
+    success, message = playback.add_song_to_playlist("Missing Playlist", "12345")
+    assert success is False
+    assert "not found" in message
+
+
+def test_remove_song_from_playlist_success(monkeypatch):
+    captured = {}
+
+    def fake_run_applescript(script, args=None):
+        captured["script"] = script
+        captured["args"] = args
+        return "ok", "", 0
+
+    monkeypatch.setattr(playback, "run_applescript", fake_run_applescript)
+
+    success, message = playback.remove_song_from_playlist("My Playlist", "12345")
+    assert success is True
+    assert "on run argv" in captured["script"]
+    assert captured["args"] == ["My Playlist", "12345"]
+
+
+def test_search_songs_in_playlist(monkeypatch):
+    captured = {}
+
+    def fake_run_applescript(script, args=None):
+        captured["script"] = script
+        captured["args"] = args
+        stdout = "1|Song A|Artist A|Album A\n2|Song B|Artist B|Album B\n"
+        return stdout, "", 0
+
+    monkeypatch.setattr(playback, "run_applescript", fake_run_applescript)
+
+    results = playback.search_songs_in_playlist("My Playlist", "Song", limit=5)
+
+    assert "on run argv" in captured["script"]
+    assert captured["args"] == ["My Playlist", "Song", "5"]
+    assert results == [
+        ("1", "Song A - Artist A (Album A)"),
+        ("2", "Song B - Artist B (Album B)"),
+    ]

@@ -2,7 +2,7 @@
 
 import click
 
-from clawtunes_helpers import playback, status
+from clawtunes_helpers import catalog, playback, status
 
 
 def format_error(error: str) -> str:
@@ -313,6 +313,40 @@ def list_playlists():
         click.echo(f"  {name} ({count} tracks)")
 
 
+@cli.group()
+def playlist():
+    """Manage playlists (create, add songs, remove songs)."""
+    pass
+
+
+@playlist.command("create")
+@click.argument("name")
+def playlist_create(name: str):
+    """Create a new playlist."""
+    success, message = playback.create_playlist(name)
+    click.echo(message, err=not success)
+    if not success:
+        raise SystemExit(1)
+
+
+@playlist.command("add")
+@click.argument("playlist_name")
+@click.argument("song")
+def playlist_add(playlist_name: str, song: str):
+    """Add a song to a playlist."""
+    if not playback.add_song_to_playlist_interactive(playlist_name, song):
+        raise SystemExit(1)
+
+
+@playlist.command("remove")
+@click.argument("playlist_name")
+@click.argument("song")
+def playlist_remove(playlist_name: str, song: str):
+    """Remove a song from a playlist."""
+    if not playback.remove_song_from_playlist_interactive(playlist_name, song):
+        raise SystemExit(1)
+
+
 # AirPlay
 
 
@@ -360,6 +394,28 @@ def airplay(device: str | None, off: bool):
         click.echo(f"Deselected: {target_name}")
     else:
         click.echo(f"Selected: {target_name}")
+
+
+# Catalog (Apple Music streaming)
+
+
+@cli.group()
+def catalog_cmd():
+    """Search Apple Music catalog."""
+    pass
+
+
+# Register the group with the name "catalog" (avoiding conflict with the imported module)
+cli.add_command(catalog_cmd, name="catalog")
+
+
+@catalog_cmd.command("search")
+@click.argument("query")
+@click.option("--limit", "-n", default=10, help="Max results")
+def catalog_search(query: str, limit: int):
+    """Search Apple Music catalog and open the song in Music."""
+    if not catalog.search_and_open(query, limit):
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
