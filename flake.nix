@@ -73,7 +73,7 @@ EOF
         # Package definition for clawtunes
         packages.default = pkgs.python312Packages.buildPythonApplication {
           pname = "clawtunes";
-          version = "0.2.0";
+          version = "0.2.1";
 
           src = ./.;
 
