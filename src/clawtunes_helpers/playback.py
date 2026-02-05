@@ -521,6 +521,210 @@ end tell
 # Playlists
 
 
+def create_playlist(name: str) -> tuple[bool, str]:
+    """Create a new playlist.
+
+    Returns (success, message) tuple.
+    """
+    script = """
+on run argv
+    set playlistName to item 1 of argv
+    tell application "Music"
+        if exists playlist playlistName then
+            return "exists"
+        else
+            make new playlist with properties {name:playlistName}
+            return "ok"
+        end if
+    end tell
+end run
+"""
+    stdout, stderr, returncode = run_applescript(script, [name])
+    if returncode != 0:
+        return False, stderr
+    if stdout.strip() == "exists":
+        return False, f"Playlist '{name}' already exists"
+    return True, f"Created playlist: {name}"
+
+
+def add_song_to_playlist(playlist_name: str, track_id: str) -> tuple[bool, str]:
+    """Add a track to a playlist by track ID.
+
+    Returns (success, message) tuple.
+    """
+    script = """
+on run argv
+    set playlistName to item 1 of argv
+    set trackId to item 2 of argv as integer
+    tell application "Music"
+        if not (exists playlist playlistName) then
+            return "playlist_not_found"
+        end if
+        set targetTrack to (first track whose id is trackId)
+        set targetPlaylist to playlist playlistName
+        duplicate targetTrack to targetPlaylist
+        return "ok"
+    end tell
+end run
+"""
+    stdout, stderr, returncode = run_applescript(script, [playlist_name, track_id])
+    if returncode != 0:
+        return False, stderr
+    if stdout.strip() == "playlist_not_found":
+        return False, f"Playlist '{playlist_name}' not found"
+    return True, ""
+
+
+def remove_song_from_playlist(playlist_name: str, track_id: str) -> tuple[bool, str]:
+    """Remove a track from a playlist by track ID.
+
+    Returns (success, message) tuple.
+    """
+    script = """
+on run argv
+    set playlistName to item 1 of argv
+    set trackId to item 2 of argv as integer
+    tell application "Music"
+        if not (exists playlist playlistName) then
+            return "playlist_not_found"
+        end if
+        set targetPlaylist to playlist playlistName
+        set matchingTracks to (every track of targetPlaylist whose id is trackId)
+        if (count of matchingTracks) is 0 then
+            return "track_not_found"
+        end if
+        delete (first track of targetPlaylist whose id is trackId)
+        return "ok"
+    end tell
+end run
+"""
+    stdout, stderr, returncode = run_applescript(script, [playlist_name, track_id])
+    if returncode != 0:
+        return False, stderr
+    result = stdout.strip()
+    if result == "playlist_not_found":
+        return False, f"Playlist '{playlist_name}' not found"
+    if result == "track_not_found":
+        return False, "Track not found in playlist"
+    return True, ""
+
+
+def search_songs_in_playlist(
+    playlist_name: str, song_name: str, limit: int | None = None
+) -> list[tuple[str, str]]:
+    """Search for songs within a specific playlist.
+
+    Returns list of (id, display_text) tuples.
+    """
+    script = """
+on run argv
+    set playlistName to item 1 of argv
+    set query to item 2 of argv
+    set limitValue to item 3 of argv as integer
+    tell application "Music"
+        if not (exists playlist playlistName) then
+            return ""
+        end if
+        set targetPlaylist to playlist playlistName
+        set matchingTracks to (every track of targetPlaylist whose name contains query)
+        if limitValue > 0 then
+            if (count of matchingTracks) > limitValue then
+                set matchingTracks to items 1 thru limitValue of matchingTracks
+            end if
+        end if
+        set output to ""
+        repeat with t in matchingTracks
+            set trackId to id of t
+            set trackName to name of t
+            set trackArtist to artist of t
+            set trackAlbum to album of t
+            set output to output & trackId & "|" & trackName & "|" & trackArtist & "|" & trackAlbum & linefeed
+        end repeat
+        return output
+    end tell
+end run
+"""
+    limit_value = limit if limit is not None else 0
+    stdout, _, returncode = run_applescript(
+        script, [playlist_name, song_name, str(limit_value)]
+    )
+
+    if returncode != 0 or not stdout:
+        return []
+
+    results = []
+    for line in stdout.strip().split("\n"):
+        if not line.strip():
+            continue
+        parts = line.split("|")
+        if len(parts) >= 4:
+            track_id, track_name, artist, album = parts[0], parts[1], parts[2], parts[3]
+            display = f"{track_name} - {artist} ({album})"
+            results.append((track_id, display))
+
+    return results
+
+
+def add_song_to_playlist_interactive(playlist_name: str, song_query: str) -> bool:
+    """Search for a song and add it to a playlist with user selection."""
+    songs = search_songs(song_query)
+
+    if not songs:
+        click.echo(f"No songs found matching '{song_query}'")
+        return False
+
+    if len(songs) == 1:
+        selected_id = songs[0][0]
+        selected_display = songs[0][1]
+    else:
+        click.echo(f"Found {len(songs)} matching songs:")
+        result = select_item(songs, "Select a song")
+        if result is None:
+            click.echo("Cancelled")
+            return False
+        selected_id = result
+        selected_display = next(d for i, d in songs if i == selected_id)
+
+    success, message = add_song_to_playlist(playlist_name, selected_id)
+    if success:
+        click.echo(f'Added "{selected_display}" to "{playlist_name}"')
+        return True
+    else:
+        click.echo(message, err=True)
+        return False
+
+
+def remove_song_from_playlist_interactive(playlist_name: str, song_query: str) -> bool:
+    """Search for a song in a playlist and remove it with user selection."""
+    songs = search_songs_in_playlist(playlist_name, song_query)
+
+    if not songs:
+        click.echo(
+            f"No songs found matching '{song_query}' in playlist '{playlist_name}'"
+        )
+        return False
+
+    if len(songs) == 1:
+        selected_id = songs[0][0]
+        selected_display = songs[0][1]
+    else:
+        click.echo(f"Found {len(songs)} matching songs in '{playlist_name}':")
+        result = select_item(songs, "Select a song")
+        if result is None:
+            click.echo("Cancelled")
+            return False
+        selected_id = result
+        selected_display = next(d for i, d in songs if i == selected_id)
+
+    success, message = remove_song_from_playlist(playlist_name, selected_id)
+    if success:
+        click.echo(f'Removed "{selected_display}" from "{playlist_name}"')
+        return True
+    else:
+        click.echo(message, err=True)
+        return False
+
+
 def get_all_playlists() -> list[tuple[str, int]]:
     """Get all playlists. Returns list of (name, track_count) tuples."""
     script = """

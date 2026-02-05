@@ -1,6 +1,6 @@
 ---
 name: managing-apple-music
-description: Control Apple Music on macOS via the `clawtunes` CLI (play songs/albums/playlists, control playback, volume, shuffle, repeat, search, AirPlay). Use when a user asks to play music, search for songs, control audio playback, or manage Apple Music settings.
+description: Control Apple Music on macOS via the `clawtunes` CLI (play songs/albums/playlists, control playback, volume, shuffle, repeat, search, catalog lookup, AirPlay, and playlist management). Use when a user asks to play music, search for songs, control audio playback, or manage Apple Music settings.
 homepage: https://github.com/forketyfork/clawtunes
 metadata:
   {
@@ -26,7 +26,7 @@ metadata:
 
 # Apple Music CLI
 
-Use `clawtunes` to control Apple Music from the terminal. Search and play music, control playback, adjust volume, manage shuffle/repeat, and connect to AirPlay devices.
+Use `clawtunes` to control Apple Music from the terminal. Search and play music, control playback, adjust volume, manage playlists, manage shuffle/repeat, browse the Apple Music catalog, and connect to AirPlay devices.
 
 Setup
 
@@ -77,12 +77,20 @@ Love/Dislike
 Playlists
 
 - List all playlists: `clawtunes playlists`
+- Create a playlist: `clawtunes playlist create "Road Trip"`
+- Add a song to a playlist: `clawtunes playlist add "Road Trip" "Kickstart My Heart"`
+- Remove a song from a playlist: `clawtunes playlist remove "Road Trip" "Kickstart My Heart"`
 
 AirPlay
 
 - List devices: `clawtunes airplay`
 - Select device: `clawtunes airplay "Device Name"`
 - Deselect device: `clawtunes airplay "Device Name" --off`
+
+Apple Music Catalog
+
+- Search the streaming catalog: `clawtunes catalog search "Bowie Heroes"`
+- Limit catalog results: `clawtunes catalog search "Bowie Heroes" -n 5`
 
 Notes
 

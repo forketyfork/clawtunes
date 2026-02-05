@@ -8,7 +8,7 @@ A command-line tool for controlling Apple Music on macOS.
 
 ## What it does
 
-Clawtunes lets you search and play music, control playback, and tweak settings—all from the terminal. When you search for a song or album and there are multiple matches, it shows you a numbered list so you can pick the right one.
+Clawtunes lets you search and play music, control playback, manage playlists, and tweak settings—all from the terminal. When you search for a song or album and there are multiple matches, it shows you a numbered list so you can pick the right one.
 
 ## Installation
 
@@ -104,6 +104,9 @@ clawtunes dislike        # Dislike current track
 
 ```bash
 clawtunes playlists      # List all playlists
+clawtunes playlist create "Road Trip"
+clawtunes playlist add "Road Trip" "Kickstart My Heart"
+clawtunes playlist remove "Road Trip" "Kickstart My Heart"
 ```
 
 ### AirPlay
@@ -112,6 +115,13 @@ clawtunes playlists      # List all playlists
 clawtunes airplay              # List devices
 clawtunes airplay "HomePod"    # Select device
 clawtunes airplay "HomePod" --off  # Deselect device
+```
+
+### Apple Music catalog
+
+```bash
+clawtunes catalog search "Bowie Heroes"
+clawtunes catalog search "Bowie Heroes" -n 5
 ```
 
 ## Example output
