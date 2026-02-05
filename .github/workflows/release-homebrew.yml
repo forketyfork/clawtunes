@@ -64,20 +64,20 @@ jobs:
 
           url = f"https://github.com/forketyfork/clawtunes/archive/refs/tags/v{version}.tar.gz"
           content, url_changes = re.subn(
-              r'^(\s*url\b\s+)\"[^\"]+\"',
+              r'^(\s*url\b\s+)\\?"[^"]+\\?"',
               rf'\1"{url}"',
               content,
               flags=re.MULTILINE,
           )
           content, sha_changes = re.subn(
-              r'^(\s*sha256\b\s+)\"[^\"]+\"',
+              r'^(\s*sha256\b\s+)\\?"[^"]+\\?"',
               rf'\1"{sha256}"',
               content,
               count=1,
               flags=re.MULTILINE,
           )
           content, version_changes = re.subn(
-              r'^(\s*version\b\s+)\"[^\"]+\"',
+              r'^(\s*version\b\s+)\\?"[^"]+\\?"',
               rf'\1"{version}"',
               content,
               count=1,
