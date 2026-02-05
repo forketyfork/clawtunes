@@ -62,13 +62,28 @@ jobs:
           version = os.environ["VERSION"]
           sha256 = os.environ["SHA256"]
 
-          content = re.sub(
-              r'url \"https://github.com/forketyfork/clawtunes/archive/refs/tags/v[^\"]+\\.tar\\.gz\"',
-              f'url \"https://github.com/forketyfork/clawtunes/archive/refs/tags/v{version}.tar.gz\"',
+          url = f"https://github.com/forketyfork/clawtunes/archive/refs/tags/v{version}.tar.gz"
+          content, url_changes = re.subn(
+              r'^(\\s*url\\s+)\"[^\"]+\"',
+              rf'\\1\"{url}\"',
               content,
+              flags=re.MULTILINE,
           )
-          content = re.sub(r'version \"[^\"]+\"', f'version \"{version}\"', content)
-          content = re.sub(r'sha256 \"[^\"]+\"', f'sha256 \"{sha256}\"', content, count=1)
+          content, sha_changes = re.subn(
+              r'^(\\s*sha256\\s+)\"[^\"]+\"',
+              rf'\\1\"{sha256}\"',
+              content,
+              count=1,
+              flags=re.MULTILINE,
+          )
+
+          if url_changes == 0 or sha_changes == 0:
+              raise SystemExit(
+                  f"Failed to update formula (url_changes={url_changes}, sha_changes={sha_changes})"
+              )
+
+          if f'v{version}.tar.gz' not in content:
+              raise SystemExit("Updated formula does not reference the release tag.")
 
           formula_path.write_text(content, encoding="utf-8")
           PY
