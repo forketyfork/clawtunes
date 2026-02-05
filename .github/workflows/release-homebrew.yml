@@ -67,6 +67,7 @@ jobs:
               r'^(\s*url\b\s+)\\?"[^"]+\\?"',
               rf'\1"{url}"',
               content,
+              count=1,
               flags=re.MULTILINE,
           )
           content, sha_changes = re.subn(
