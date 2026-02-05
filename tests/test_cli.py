@@ -17,7 +17,7 @@ def test_cli_version():
     """Test that CLI version option exists."""
     import clawtunes
 
-    assert clawtunes.__version__ == "0.2.0"
+    assert clawtunes.__version__ == "0.2.1"
 
 
 def test_play_help():
