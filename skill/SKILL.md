@@ -2,26 +2,7 @@
 name: managing-apple-music
 description: Control Apple Music on macOS via the `clawtunes` CLI (play songs/albums/playlists, control playback, volume, shuffle, repeat, search, catalog lookup, AirPlay, and playlist management). Use when a user asks to play music, search for songs, control audio playback, or manage Apple Music settings.
 homepage: https://github.com/forketyfork/clawtunes
-metadata:
-  {
-    "openclaw":
-      {
-        "emoji": "🎵",
-        "os": ["darwin"],
-        "requires": { "bins": ["clawtunes"] },
-        "install":
-          [
-            {
-              "id": "brew",
-              "kind": "brew",
-              "tap": "forketyfork/tap",
-              "formula": "clawtunes",
-              "bins": ["clawtunes"],
-              "label": "Install clawtunes via Homebrew",
-            },
-          ],
-      },
-  }
+metadata: {"clawdbot":{"emoji":"🎵","os":["darwin"],"requires":{"bins":["clawtunes"]},"install":[{"id":"brew","kind":"brew","tap":"forketyfork/tap","formula":"clawtunes","bins":["clawtunes"],"label":"Install clawtunes via Homebrew"}]}}
 ---
 
 # Apple Music CLI
