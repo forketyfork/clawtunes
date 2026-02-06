@@ -3,6 +3,17 @@
 import click
 
 
+def _get_flag(name: str) -> bool:
+    ctx = click.get_current_context(silent=True)
+    if ctx is None or ctx.obj is None:
+        return False
+    return bool(ctx.obj.get(name, False))
+
+
+def is_non_interactive() -> bool:
+    return _get_flag("non_interactive")
+
+
 def select_item(items: list[tuple[str, str]], prompt: str) -> str | None:
     """Display numbered list, prompt user, return selected ID.
 
@@ -19,10 +30,16 @@ def select_item(items: list[tuple[str, str]], prompt: str) -> str | None:
     if len(items) == 1:
         return items[0][0]
 
+    if _get_flag("first"):
+        return items[0][0]
+
     click.echo()
     for i, (_, display) in enumerate(items, 1):
         click.echo(f"  {i}. {display}")
     click.echo()
+
+    if _get_flag("non_interactive"):
+        return None
 
     while True:
         try:

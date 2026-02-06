@@ -48,6 +48,20 @@ clawtunes play album "Abbey Road"
 clawtunes play playlist "Chill Vibes"
 ```
 
+### Non-interactive mode
+
+By default, when multiple matches are found, clawtunes shows a numbered menu for selection. Use `--non-interactive` (`-N`) to skip the prompt and just list the matches, or `--first` (`-1`) to auto-select the first match:
+
+```bash
+# List matches without prompting (exits with code 1)
+clawtunes -N play song "love"
+
+# Auto-select the first match
+clawtunes -1 play song "love"
+```
+
+These flags apply to all commands that involve selection: `play song`, `play album`, `play playlist`, `playlist add`, `playlist remove`, and `catalog search`.
+
 ### Playback controls
 
 ```bash

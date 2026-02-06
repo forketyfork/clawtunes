@@ -18,9 +18,16 @@ def format_error(error: str) -> str:
 
 @click.group()
 @click.version_option()
-def cli():
+@click.option(
+    "--non-interactive", "-N", is_flag=True, help="Don't prompt; list matches and exit"
+)
+@click.option("--first", "-1", is_flag=True, help="Auto-select the first match")
+@click.pass_context
+def cli(ctx, non_interactive, first):
     """Control Apple Music from the command line."""
-    pass
+    ctx.ensure_object(dict)
+    ctx.obj["non_interactive"] = non_interactive
+    ctx.obj["first"] = first
 
 
 @cli.group()
