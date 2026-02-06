@@ -3,8 +3,9 @@
 [![Build status](https://github.com/forketyfork/clawtunes/actions/workflows/build.yml/badge.svg)](https://github.com/forketyfork/clawtunes/actions/workflows/build.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/language-Python-blue.svg)](https://python.org/)
+[![Clawhub Skill](https://img.shields.io/badge/clawhub-skill-orange.svg)](https://clawhub.ai/forketyfork/clawtunes)
 
-A command-line tool for controlling Apple Music on macOS.
+A command-line tool for controlling Apple Music on macOS. Also available as a [Claude Code skill on Clawhub](https://clawhub.ai/forketyfork/clawtunes).
 
 ## What it does
 
@@ -15,8 +16,7 @@ Clawtunes lets you search and play music, control playback, manage playlists, an
 ### With Homebrew (recommended)
 
 ```bash
-brew tap forketyfork/tap
-brew install clawtunes
+brew install forketyfork/tap/clawtunes
 ```
 
 ### With pip
