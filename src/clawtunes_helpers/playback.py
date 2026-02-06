@@ -4,7 +4,7 @@ import click
 from pathlib import Path
 
 from clawtunes_helpers.applescript import run_applescript
-from clawtunes_helpers.selection import select_item
+from clawtunes_helpers.selection import is_non_interactive, select_item
 
 
 def search_songs(name: str, limit: int | None = None) -> list[tuple[str, str]]:
@@ -85,7 +85,8 @@ def play_song(name: str) -> bool:
     selected_id = select_item(songs, "Select a song")
 
     if selected_id is None:
-        click.echo("Cancelled")
+        if not is_non_interactive():
+            click.echo("Cancelled")
         return False
 
     selected_display = next(d for i, d in songs if i == selected_id)
@@ -191,7 +192,8 @@ def play_album(name: str) -> bool:
     selected_name = select_item(albums, "Select an album")
 
     if selected_name is None:
-        click.echo("Cancelled")
+        if not is_non_interactive():
+            click.echo("Cancelled")
         return False
 
     selected_display = next(d for n, d in albums if n == selected_name)
@@ -274,7 +276,8 @@ def play_playlist(name: str) -> bool:
     selected_name = select_item(playlists, "Select a playlist")
 
     if selected_name is None:
-        click.echo("Cancelled")
+        if not is_non_interactive():
+            click.echo("Cancelled")
         return False
 
     selected_display = next(d for n, d in playlists if n == selected_name)
@@ -680,7 +683,8 @@ def add_song_to_playlist_interactive(playlist_name: str, song_query: str) -> boo
         click.echo(f"Found {len(songs)} matching songs:")
         result = select_item(songs, "Select a song")
         if result is None:
-            click.echo("Cancelled")
+            if not is_non_interactive():
+                click.echo("Cancelled")
             return False
         selected_id = result
         selected_display = next(d for i, d in songs if i == selected_id)
@@ -711,7 +715,8 @@ def remove_song_from_playlist_interactive(playlist_name: str, song_query: str) -
         click.echo(f"Found {len(songs)} matching songs in '{playlist_name}':")
         result = select_item(songs, "Select a song")
         if result is None:
-            click.echo("Cancelled")
+            if not is_non_interactive():
+                click.echo("Cancelled")
             return False
         selected_id = result
         selected_display = next(d for i, d in songs if i == selected_id)

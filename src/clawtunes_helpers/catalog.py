@@ -9,7 +9,7 @@ from typing import Any
 
 import click
 
-from clawtunes_helpers.selection import select_item
+from clawtunes_helpers.selection import is_non_interactive, select_item
 
 
 ITUNES_SEARCH_URL = "https://itunes.apple.com/search"
@@ -85,7 +85,8 @@ def search_and_open(query: str, limit: int = 10) -> bool:
         click.echo(f"Found {len(formatted)} results in Apple Music:")
         result = select_item(formatted, "Select a song")
         if result is None:
-            click.echo("Cancelled")
+            if not is_non_interactive():
+                click.echo("Cancelled")
             return False
         track_url = result
         display = next(d for u, d in formatted if u == track_url)

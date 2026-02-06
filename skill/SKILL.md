@@ -39,7 +39,9 @@ Play Music
 - Play a song: `clawtunes play song "Song Name"`
 - Play an album: `clawtunes play album "Album Name"`
 - Play a playlist: `clawtunes play playlist "Playlist Name"`
-- When multiple matches exist, an interactive numbered menu appears for selection.
+- Always use the `--non-interactive` (`-N`) flag to prevent interactive prompts: `clawtunes -N play song "Song Name"`
+- If the command exits with code 1 and lists multiple matches, retry with a more specific song/album/playlist name.
+- If a more specific name still returns multiple matches, use the `--first` (`-1`) flag to auto-select the first result: `clawtunes -1 play song "Song Name"`
 
 Playback Control
 
@@ -91,6 +93,7 @@ Apple Music Catalog
 
 - Search the streaming catalog: `clawtunes catalog search "Bowie Heroes"`
 - Limit catalog results: `clawtunes catalog search "Bowie Heroes" -n 5`
+- Note: Catalog search is browse-only. To add songs to playlists, they must first be in your library. Use Apple Music app to add catalog items to your library before managing them with clawtunes.
 
 Notes
 
