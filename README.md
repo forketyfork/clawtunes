@@ -180,3 +180,7 @@ just format
 ## License
 
 MIT
+
+## Download History
+
+[![Download History](https://skill-history.com/chart/forketyfork/clawtunes.svg)](https://skill-history.com/forketyfork/clawtunes)
